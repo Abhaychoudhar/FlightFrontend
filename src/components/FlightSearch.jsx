@@ -1,85 +1,73 @@
 import React, { useState } from "react";
+import FlightList from "./FlightList";
 
 const FlightSearch = () => {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [date, setDate] = useState("");
   const [passengers, setPassengers] = useState(1);
-const onFetchAll = async () => {
-  try {
-    console.log("All flights Requested ")
-    const res = await fetch("http://localhost:5000/api/v1/flights");
-    const data = await res.json();
-    console.log("Flights data:", data);
-  } catch (err) {
-    console.error("Error fetching flights:", err);
-  }
-};
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const [flights, setFlights] = useState([]);
 
-    const searchData = {
-      from,
-      to,
-      date,
-      passengers,
-    };
-
-    if (onSearch) {
-      onSearch(searchData);
+  const onFetchAll = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/v1/flights");
+      const data = await res.json();
+      setFlights(data.message);
+      console.log("Flights fetched:", data.message);
+    } catch (err) {
+      console.error("Error fetching flights:", err);
     }
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const searchData = { from, to, date, passengers };
+    console.log("Search submitted:", searchData);
+    // TODO: Call search API here
+  };
+
   return (
-    <div
-      className="flight-search"
-      style={{
-        maxWidth: "500px",
-        margin: "auto",
-        padding: "20px",
-        border: "1px solid #ddd",
-        borderRadius: "8px",
-      }}
-    >
-      <h2 style={{ textAlign: "center" }}>Search Flights</h2>
+    <div className="max-w-full mx-auto p-6 border rounded-xl shadow-sm">
+      <h2 className="text-center text-2xl font-bold mb-4">Search Flights</h2>
+
       <form
         onSubmit={handleSubmit}
-        style={{ display: "flex", flexDirection: "column", gap: "12px" }}
+        className="flex flex-wrap gap-4 items-center justify-center"
       >
         <input
           type="text"
           placeholder="From (City / Airport)"
           value={from}
           onChange={(e) => setFrom(e.target.value)}
+          className="border p-2 rounded-lg flex-1 min-w-[150px]"
         />
+
         <input
           type="text"
           placeholder="To (City / Airport)"
           value={to}
           onChange={(e) => setTo(e.target.value)}
+          className="border p-2 rounded-lg flex-1 min-w-[150px]"
         />
+
         <input
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
+          className="border p-2 rounded-lg min-w-[150px]"
         />
+
         <input
           type="number"
           min="1"
           value={passengers}
           onChange={(e) => setPassengers(e.target.value)}
+          className="border p-2 rounded-lg w-20"
         />
 
         <button
           type="submit"
-          style={{
-            padding: "10px",
-            background: "#007bff",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
         >
           Search
         </button>
@@ -87,18 +75,17 @@ const onFetchAll = async () => {
         <button
           type="button"
           onClick={onFetchAll}
-          style={{
-            padding: "10px",
-            background: "#28a745",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
+          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
         >
           View All Flights
         </button>
       </form>
+
+      <div className="mt-6 flex flex-col gap-4">
+        {flights.length > 0 ? <FlightList flights={flights} /> : (
+          <p className="text-center text-gray-500">No flights!</p>
+        )}
+      </div>
     </div>
   );
 };
